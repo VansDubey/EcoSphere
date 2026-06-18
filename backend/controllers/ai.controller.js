@@ -4,7 +4,7 @@ const ecoBot=async (req, res) => {
     
     const { payLoad } = req.body;
     const response = await axios.post(
-      "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent",
+      "https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash:generateContent",
       {
         contents: [
           { parts: [{ text: payLoad }] },

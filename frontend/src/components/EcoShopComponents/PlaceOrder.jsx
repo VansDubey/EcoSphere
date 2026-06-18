@@ -29,20 +29,24 @@ const PlaceOrder = () => {
 		setFormData((data) => ({ ...data, [name]: value }));
 	};
 
-    const initPay = async (order) => {
+    const initPay = async (order, orderId) => {
         const options = {
             key: import.meta.env.VITE_RAZORPAY_KEY_ID,
-            amount: order.amount * 100, // amount in the smallest currency unit
+            amount: order.amount, // amount in the smallest currency unit
             currency: order.currency,
             name: "Order Payment",
             description: "Order Payment",
-            order_id: order.id, // This is the Razorpay order ID
+            order_id: order.id,
             receipt: order.receipt,
             handler: async (response) => {
                 console.log(response);
                 try {
-                    const { data } = await axios.post(backendUrl + "/api/order/verifyRazorpay", {response}, {headers: {token}});
-                    if(data.success) {
+                    const { data } = await axios.post(
+                        backendUrl + "/api/order/verifyRazorpay",
+                        { response, orderId },
+                        { headers: { token } }
+                    );
+                    if (data.success) {
                         navigate("/myorders");
                         setCartItems({});
                     } else {
@@ -52,9 +56,8 @@ const PlaceOrder = () => {
                     console.log(error);
                     toast.error(error.message || "Something went wrong");
                 }
-            }
-
-        }
+            },
+        };
         const rzp = new window.Razorpay(options);
         rzp.open();
     }
@@ -112,7 +115,7 @@ const PlaceOrder = () => {
                 case "razorpay":
                     const razorpayResponse = await axios.post(backendUrl + "/api/order/razorpay", orderData, {headers: {token}});
                     if(razorpayResponse.data.success) {
-                        initPay(razorpayResponse.data.order);
+                        initPay(razorpayResponse.data.order, razorpayResponse.data.orderId);
                     }
 
                 break;
