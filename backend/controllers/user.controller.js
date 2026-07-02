@@ -117,9 +117,9 @@ const adminLogin = async (req, res) => {
 
 const userDetails = async (req, res) => {
     try {
-        const { userId } = req.body;
+        const userId = req.userId; // Get userId from auth middleware
         if (!userId) {
-            return res.status(400).json({ success: false, message: 'User ID is required' });
+            return res.status(401).json({ success: false, message: 'Unauthorized' });
         }
 
         const user = await User.findById(userId).select('-password');
@@ -138,7 +138,7 @@ const userDetails = async (req, res) => {
 const updateUserProfile = async (req, res) => {
     try {
         const { name, email, phone, currentPassword, newPassword } = req.body;
-        const userId = req.user?.id;
+        const userId = req.userId;
 
         if (!userId) {
             return res.status(401).json({ success: false, message: 'Unauthorized' });
@@ -187,7 +187,7 @@ const updateUserProfile = async (req, res) => {
 // Upload profile photo
 const uploadProfilePhoto = async (req, res) => {
     try {
-        const userId = req.user?.id;
+        const userId = req.userId;
         
         if (!userId) {
             return res.status(401).json({ success: false, message: 'Unauthorized' });

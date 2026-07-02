@@ -17,6 +17,7 @@ function ProfileReports() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [reports, setReports] = useState([]);
+  const [downloadingId, setDownloadingId] = useState(null);
 
   const apiBase = useMemo(() => {
     // backendUrl comes from ShopContext; keep a safe fallback for local testing.
@@ -49,6 +50,7 @@ function ProfileReports() {
 
   const downloadPdf = async (reportId) => {
     if (!reportId) return;
+    setDownloadingId(reportId);
     try {
       const res = await axios.get(`${apiBase}/api/report/${reportId}/pdf`, {
         headers: token ? { token } : undefined,
@@ -68,6 +70,8 @@ function ProfileReports() {
       window.URL.revokeObjectURL(url);
     } catch (e) {
       alert(e?.response?.data?.error || e.message || 'PDF download failed');
+    } finally {
+      setDownloadingId(null);
     }
   };
 
@@ -119,9 +123,10 @@ function ProfileReports() {
 
                 <button
                   onClick={() => downloadPdf(r._id)}
-                  className="shrink-0 bg-[#BFFF00] text-green-900 font-semibold px-4 py-2 rounded-full hover:opacity-90 transition"
+                  disabled={downloadingId === r._id}
+                  className="shrink-0 bg-[#BFFF00] text-green-900 font-semibold px-4 py-2 rounded-full hover:opacity-90 transition disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  Download PDF
+                  {downloadingId === r._id ? 'Downloading...' : 'Download PDF'}
                 </button>
               </div>
 

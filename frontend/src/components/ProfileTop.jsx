@@ -1,8 +1,11 @@
 import React from "react";
-import { FaShareAlt, FaCog, FaCamera } from "react-icons/fa";
+import { FaShareAlt, FaCog } from "react-icons/fa";
 import { ShopContext } from "../contexts/ShopContext";
 import axios from "axios";
 import ProfileStats from "./ProfileStats";
+
+const MONO = "'SFMono-Regular', 'Menlo', 'Consolas', monospace";
+const SERIF = "'Georgia', 'Times New Roman', serif";
 
 function ProfileTop() {
     const [profileData, setProfileData] = React.useState({});
@@ -10,7 +13,6 @@ function ProfileTop() {
 
     const fetchProfileData = async () => {
         if (!token) return;
-
         try {
             const response = await axios.post(
                 `${backendUrl}/api/user/profile`,
@@ -26,29 +28,22 @@ function ProfileTop() {
     };
 
     React.useEffect(() => {
-        if (token) {
-            fetchProfileData();
-        }
+        if (token) fetchProfileData();
     }, [token]);
 
     const handleAvatarClick = () => {
-        const fileInput = document.getElementById('profile-photo-input');
-        if (fileInput) {
-            fileInput.click();
-        }
+        document.getElementById('profile-photo-input')?.click();
     };
 
     const handlePhotoUpload = async (e) => {
         const file = e.target.files[0];
         if (!file) return;
-
         const reader = new FileReader();
         reader.onloadend = async () => {
             try {
-                const base64Image = reader.result;
                 await axios.post(
                     `${backendUrl}/api/user/profile/photo`,
-                    { profilePhoto: base64Image },
+                    { profilePhoto: reader.result },
                     { headers: { token } }
                 );
                 fetchProfileData();
@@ -65,7 +60,6 @@ function ProfileTop() {
             text: 'Check out my EcoSphere profile! I\'m making a difference for the environment.',
             url: window.location.href
         };
-
         try {
             if (navigator.share) {
                 await navigator.share(shareData);
@@ -79,103 +73,121 @@ function ProfileTop() {
     };
 
     const memberSince = profileData.createdAt
-        ? new Date(profileData.createdAt).toLocaleDateString('en-US', {
-            month: 'long',
-            year: 'numeric'
-        })
+        ? new Date(profileData.createdAt).toLocaleDateString('en-US', { month: 'long', year: 'numeric' })
         : 'N/A';
 
     return (
-        <div className="relative rounded-2xl overflow-hidden shadow-sm">
+        <div style={{ borderRadius: "16px 16px 0 0", overflow: "hidden", border: "1px solid #DCEBD8", borderBottom: "none" }}>
+
             {/* Cover Banner */}
-            <div
-                className="h-28 w-full bg-gradient-to-r from-[#14301a] to-[#1f4d2b]"
-                style={{ position: 'relative', zIndex: 1 }}
-            />
+            <div style={{ height: 88, width: "100%", backgroundColor: "#16321F" }} />
 
-            {/* Profile Info Container */}
-            <div
-                className="px-8 sm:px-10 pb-8 pt-0 flex flex-col md:flex-row md:items-end justify-between gap-6"
-                style={{
-                    backgroundColor: '#eef7ee',
-                    position: 'relative',
-                    zIndex: 2
-                }}
-            >
-                <div className="flex flex-col sm:flex-row sm:items-end gap-5">
-
-                    {/* Avatar with overlap */}
-                    <div className="relative -mt-10 shrink-0">
+            {/* Profile Info */}
+            <div style={{ backgroundColor: "#F3F8F1", padding: "0 32px 28px" }}>
+                <div
+                    style={{
+                        display: "flex",
+                        alignItems: "flex-end",
+                        justifyContent: "space-between",
+                        flexWrap: "wrap",
+                        gap: 20,
+                        marginTop: -34
+                    }}
+                >
+                    {/* Avatar + name */}
+                    <div style={{ display: "flex", alignItems: "flex-end", gap: 16 }}>
                         <div
-                            className="relative inline-block cursor-pointer group"
                             onClick={handleAvatarClick}
+                            style={{ position: "relative", cursor: "pointer" }}
+                            className="group"
                         >
                             <div
-                                className="w-24 h-24 bg-[#BFFF00] text-black rounded-full flex items-center justify-center text-3xl font-extrabold shadow-md border-4 border-white overflow-hidden"
-                                style={{ zIndex: 3 }}
+                                style={{
+                                    width: 76,
+                                    height: 76,
+                                    borderRadius: "50%",
+                                    backgroundColor: "#CFEF3E",
+                                    border: "4px solid #F3F8F1",
+                                    display: "flex",
+                                    alignItems: "center",
+                                    justifyContent: "center",
+                                    fontFamily: MONO,
+                                    fontSize: 26,
+                                    fontWeight: 500,
+                                    color: "#16321F",
+                                    overflow: "hidden",
+                                    flexShrink: 0
+                                }}
                             >
                                 {profileData.profilePhoto ? (
                                     <img
                                         src={profileData.profilePhoto}
                                         alt="Profile"
-                                        className="w-full h-full rounded-full object-cover"
+                                        style={{ width: "100%", height: "100%", borderRadius: "50%", objectFit: "cover" }}
                                     />
                                 ) : (
                                     profileData.name ? profileData.name.charAt(0).toUpperCase() : "U"
                                 )}
                             </div>
-                            {/* Camera icon overlay on hover */}
-                            <div className="absolute inset-0 flex items-center justify-center bg-black/50 rounded-full opacity-0 group-hover:opacity-100 transition-opacity">
-                                <FaCamera className="text-white text-lg" />
+                            <div
+                                className="opacity-0 group-hover:opacity-100"
+                                style={{
+                                    position: "absolute",
+                                    inset: 0,
+                                    display: "flex",
+                                    alignItems: "center",
+                                    justifyContent: "center",
+                                    backgroundColor: "rgba(0,0,0,0.5)",
+                                    borderRadius: "50%",
+                                    color: "white",
+                                    fontSize: 11,
+                                    transition: "opacity 0.15s"
+                                }}
+                            >
+                                Change
                             </div>
+                            <input
+                                type="file"
+                                id="profile-photo-input"
+                                accept="image/*"
+                                onChange={handlePhotoUpload}
+                                style={{ display: "none" }}
+                            />
                         </div>
-                        <input
-                            type="file"
-                            id="profile-photo-input"
-                            accept="image/*"
-                            onChange={handlePhotoUpload}
-                            className="hidden"
-                        />
+
+                        <div style={{ paddingBottom: 6 }}>
+                                    <p style={{ fontSize: 21, color: "#16321F", margin: "0 0 4px" }}>
+                                        {profileData.name || "User name"}
+                                    </p>
+
+                            <p style={{ fontSize: 13, color: "#4C6B4F", margin: "0 0 2px" }}>
+                                {profileData.email || "user@example.com"}
+                            </p>
+                            <p style={{ fontFamily: MONO, fontSize: 11, letterSpacing: "0.02em", color: "#7C9A7E", margin: 0, textTransform: "uppercase" }}>
+                                Member since {memberSince}
+                            </p>
+                        </div>
                     </div>
 
-                    {/* User Info */}
-                    <div className="pt-2 pb-1">
-                        <h3 className="font-bold text-xl text-[#14301a] mb-1 leading-tight">
-                            {profileData.name || 'User Name'}
-                        </h3>
-                        <p className="text-sm text-[#3d6b45] mb-1">
-                            {profileData.email || 'user@example.com'}
-                        </p>
-                        <p className="text-xs text-[#6b8f71]">
-                            Member since {memberSince}
-                        </p>
-                    </div>
-                </div>
-
-                {/* Right side: actions + stats */}
-                <div className="flex flex-col items-start md:items-end gap-4 w-full md:w-auto">
-                    {/* Action Buttons */}
-                    <div className="flex items-center gap-2 text-[#3d6b45] self-end">
+                    {/* Action buttons */}
+                    <div style={{ display: "flex", gap: 8, paddingBottom: 8 }}>
                         <button
                             onClick={handleShare}
-                            className="p-2 rounded-full hover:bg-[#d9ecda] hover:text-[#1f4d2b] transition"
-                            title="Share Profile"
+                            aria-label="Share profile"
+                            style={{
+                                width: 36, height: 36, borderRadius: "50%",
+                                border: "1px solid #C9DEC4", backgroundColor: "transparent",
+                                display: "flex", alignItems: "center", justifyContent: "center",
+                                color: "#16321F", cursor: "pointer"
+                            }}
                         >
-                            <FaShareAlt className="text-lg" />
+                            <FaShareAlt style={{ fontSize: 14 }} />
                         </button>
-                        <button
-                            className="p-2 rounded-full hover:bg-[#d9ecda] hover:text-[#1f4d2b] transition"
-                            title="Settings"
-                        >
-                            <FaCog className="text-lg" />
-                        </button>
-                    </div>
 
-                    {/* Profile Stats */}
-                    <div className="w-full md:w-80 bg-white rounded-xl px-4 py-3 shadow-sm border border-[#d9ecda]">
-                        <ProfileStats />
                     </div>
                 </div>
+
+                <ProfileStats />
             </div>
         </div>
     );

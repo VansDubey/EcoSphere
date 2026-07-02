@@ -28,6 +28,7 @@ function CarbonFootprintCalculator() {
 
   const [report, setReport] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [downloading, setDownloading] = useState(false);
 
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
@@ -50,6 +51,7 @@ function CarbonFootprintCalculator() {
 
   const downloadPdf = async () => {
     if (!report?.reportId) return;
+    setDownloading(true);
     try {
       const res = await axios.get(
         `${API_BASE_URL}/api/report/${report.reportId}/pdf`,
@@ -71,6 +73,8 @@ function CarbonFootprintCalculator() {
     } catch (e) {
       console.error(e);
       alert('Failed to download PDF.');
+    } finally {
+      setDownloading(false);
     }
   };
 
@@ -147,9 +151,10 @@ function CarbonFootprintCalculator() {
 
               <button
                 onClick={downloadPdf}
-                className="mt-4 bg-emerald-600 text-white font-semibold px-6 py-2 rounded-full"
+                disabled={downloading}
+                className="mt-4 bg-emerald-600 text-white font-semibold px-6 py-2 rounded-full disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                Download PDF
+                {downloading ? 'Downloading...' : 'Download PDF'}
               </button>
             </div>
           )}

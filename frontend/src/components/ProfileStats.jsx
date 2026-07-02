@@ -1,85 +1,123 @@
-import React, { useContext, useEffect, useState } from 'react';
-import { ShopContext } from '../contexts/ShopContext';
-import axios from 'axios';
+import React from "react";
+import { ShopContext } from "../contexts/ShopContext";
+import axios from "axios";
+
+const MONO = "'SFMono-Regular', 'Menlo', 'Consolas', monospace";
 
 function ProfileStats() {
-    const { token, backendUrl } = useContext(ShopContext);
-    const [stats, setStats] = useState({
+    const [stats, setStats] = React.useState({
         carbonScore: 0,
         reportsGenerated: 0,
-        communityStatus: 'Not Joined'
+        joinedCommunity: false
     });
+    const { token, backendUrl } = React.useContext(ShopContext);
 
-    useEffect(() => {
+    const fetchStats = async () => {
         if (!token) return;
-        
-        const fetchStats = async () => {
-            try {
-                // Fetch reports count
-                const reportsRes = await axios.get(`${backendUrl}/api/report/me`, {
-                    headers: { token }
-                });
-                const reports = reportsRes.data?.reports || [];
-                
-                // Get latest carbon score from reports
-                const latestReport = reports[0];
-                const carbonScore = latestReport?.footprint_kg_per_year || 0;
-                
-                // Check community status (you can adjust this based on your actual community logic)
-                // For now, checking if user has joined any initiatives
-                const initiativesRes = await axios.get(`${backendUrl}/api/initiative/getinitiatives`, {
-                    headers: { token }
-                });
-                const initiatives = initiativesRes.data?.List || [];
-                const userInitiatives = initiatives.filter(init => 
-                    init.members?.some(member => member._id === reportsRes.data?.user?._id)
-                );
-                
-                setStats({
-                    carbonScore: carbonScore || 0,
-                    reportsGenerated: reports.length,
-                    communityStatus: userInitiatives.length > 0 ? 'Active' : 'Not Joined'
-                });
-            } catch (error) {
-                console.error("Error fetching stats:", error);
-            }
-        };
+        try {
+            // Fetch reports to get carbon score and count
+            const reportsRes = await axios.get(
+                `${backendUrl}/api/report/me`,
+                { headers: { token } }
+            );
+            const reports = reportsRes.data?.reports || [];
+            const latestReport = reports[0];
+            const carbonScore = latestReport?.footprint_kg_per_year || 0;
 
-        fetchStats();
-    }, [token, backendUrl]);
+            // Fetch initiatives to check community status
+            const initiativesRes = await axios.get(
+                `${backendUrl}/api/initiative/getinitiatives`,
+                { headers: { token } }
+            );
+            const initiatives = initiativesRes.data?.List || [];
+            
+            // Check if user is a member of any initiative
+            // Note: We need the user ID from the profile data
+            const profileRes = await axios.post(
+                `${backendUrl}/api/user/profile`,
+                {},
+                { headers: { token } }
+            );
+            const userId = profileRes.data?.user?._id;
+            
+            const joinedCommunity = initiatives.some(init => 
+                init.members?.some(member => member._id === userId)
+            );
+
+            setStats({
+                carbonScore: carbonScore || 0,
+                reportsGenerated: reports.length,
+                joinedCommunity
+            });
+        } catch (error) {
+            console.error("Error fetching profile stats:", error);
+        }
+    };
+
+    React.useEffect(() => {
+        if (token) fetchStats();
+    }, [token]);
+
+    const { carbonScore, reportsGenerated, joinedCommunity } = stats;
+
+    // Ring gauge math (scale is a placeholder — swap in your real target score)
+    const radius = 24;
+    const circumference = 2 * Math.PI * radius;
+    const fillRatio = Math.min(carbonScore / 10000, 1);
+    const dashOffset = circumference * (1 - fillRatio);
 
     return (
-        <div className="grid grid-cols-3 gap-4 mb-6">
-            {/* Carbon Score */}
-            <div className="bg-white rounded-lg p-4 shadow-sm border border-green-100">
-                <div className="text-2xl font-bold text-[#BFFF00] mb-1">
-                    {stats.carbonScore > 0 ? `${stats.carbonScore.toFixed(0)} kg` : '0 kg'}
-                </div>
-                <div className="text-xs text-green-800 font-medium">
-                    Carbon Score
+        <div
+            style={{
+                marginTop: 24,
+                backgroundColor: "#FFFFFF",
+                borderRadius: 12,
+                border: "1px solid #DCEBD8",
+                padding: "18px 24px",
+                display: "flex",
+                alignItems: "center",
+                gap: 32,
+                flexWrap: "wrap"
+            }}
+        >
+            {/* Carbon score with ring */}
+            <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
+                <svg width="56" height="56" viewBox="0 0 56 56" aria-hidden="true">
+                    <circle cx="28" cy="28" r={radius} fill="none" stroke="#EAF3DE" strokeWidth="6" />
+                    <circle
+                        cx="28" cy="28" r={radius} fill="none" stroke="#639922" strokeWidth="6"
+                        strokeLinecap="round"
+                        strokeDasharray={circumference}
+                        strokeDashoffset={dashOffset}
+                        transform="rotate(-90 28 28)"
+                    />
+                </svg>
+                <div>
+                    <p style={{ fontFamily: MONO, fontSize: 20, fontWeight: 500, color: "#16321F", margin: 0, lineHeight: 1.1 }}>
+                        {carbonScore.toLocaleString()} kg
+                    </p>
+                    <p style={{ fontSize: 12, color: "#6B8F71", margin: "2px 0 0" }}>Carbon score</p>
                 </div>
             </div>
 
-            {/* Reports Generated */}
-            <div className="bg-white rounded-lg p-4 shadow-sm border border-green-100">
-                <div className="text-2xl font-bold text-[#BFFF00] mb-1">
-                    {stats.reportsGenerated}
-                </div>
-                <div className="text-xs text-green-800 font-medium">
-                    Reports Generated
-                </div>
+            <div style={{ width: 1, height: 36, backgroundColor: "#DCEBD8" }} />
+
+            <div>
+                <p style={{ fontFamily: MONO, fontSize: 20, fontWeight: 500, color: "#16321F", margin: 0, lineHeight: 1.1 }}>
+                    {reportsGenerated}
+                </p>
+                <p style={{ fontSize: 12, color: "#6B8F71", margin: "2px 0 0" }}>Reports generated</p>
             </div>
 
-            {/* Community Status */}
-            <div className="bg-white rounded-lg p-4 shadow-sm border border-green-100">
-                <div className="text-2xl font-bold mb-1">
-                    <span className={`${stats.communityStatus === 'Active' ? 'text-green-600' : 'text-gray-400'}`}>
-                        {stats.communityStatus === 'Active' ? '● Active' : '○ Not Joined'}
-                    </span>
-                </div>
-                <div className="text-xs text-green-800 font-medium">
-                    Community
-                </div>
+            <div style={{ width: 1, height: 36, backgroundColor: "#DCEBD8" }} />
+
+            <div>
+                <p style={{ fontFamily: MONO, fontSize: 20, fontWeight: 500, color: joinedCommunity ? "#16321F" : "#B4B2A9", margin: 0, lineHeight: 1.1 }}>
+                    {joinedCommunity ? "✓" : "—"}
+                </p>
+                <p style={{ fontSize: 12, color: "#6B8F71", margin: "2px 0 0" }}>
+                    {joinedCommunity ? "Joined community" : "Not joined community"}
+                </p>
             </div>
         </div>
     );
