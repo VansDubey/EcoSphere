@@ -38,6 +38,11 @@ const userSchema = new mongoose.Schema(
       default: "",
     },
 
+    profilePhoto: {
+      type: String,
+      default: "",
+    },
+
     badges: {
       type: [String],
       default: [], // e.g. ["Green Beginner", "Sustainability Creator"]

@@ -39,7 +39,6 @@ function Navbar() {
 		{ name: "Home", path: "/" },
 		{ name: "EcoCalculator", path: "/eco-calculator" },
 		{ name: "EcoShopping", path: "/eco-shop" },
-		{ name: "Communities", path: "/communities" },
 		{ name: "Learn", path: "/learn" },
 		{ name: "Initiatives", path: "/initiatives" },
 		{ name: "Support", path: "/support" },

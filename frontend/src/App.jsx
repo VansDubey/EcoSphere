@@ -1,12 +1,11 @@
 import { Routes, Route,Link } from "react-router-dom";
-import { Home, Login, Signup, Support, Learn, Contact, Initiative, EcoShop, Profile, Communities, Cart } from "./pages";
+import { Home, Login, Signup, Support, Learn, Contact, Initiative, EcoShop, Profile, Cart } from "./pages";
 import Product from "./components/EcoShopComponents/Product";
 import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
 import { ToastContainer } from "react-toastify";
 import {Toaster} from 'sonner';
 import CarbonFootprintCalculator from "./pages/EcoCalci";
-import Community from "./components/Support/Community";
 import LearnGrow from "./components/Support/LearnGrow";
 import CarbonTracker from "./components/Support/CarbonTracker";
 import Eco from "./components/Support/Eco";
@@ -14,9 +13,6 @@ import Initiate from "./components/Support/Initiate";
 import GettingStarted from "./components/Support/GettingStarted";
 import LearnArticleInDetail from "./components/LearnArticleinDetail";
 import LearnArticleCreate from "./components/LearnArticleCreate";
-import CommunityDisplay from "./components/CommunityDisplay";
-import CommunityPostForm from "./components/CommunityPostCreate";
-import CommunityNewForm from "./components/CommunityNewForm";
 import LearnVideoCreate from "./components/LearnVideoCreate";
 import CreateInitiative from "./components/initiative-Formpage";
 import Orders from "./pages/Orders";
@@ -38,8 +34,8 @@ function App() {
 				<Route path="/" element={<Home />} />
 				<Route path="/login" element={<Login />} />
 				<Route path="/signup" element={<Signup />} />
-				<Route path="/profile" element={<Profile />} />
-				<Route path="/support" element={<Support />} />
+			<Route path="/profile" element={<Profile />} />
+			<Route path="/support" element={<Support />} />
 				<Route path="/learn" element={<Learn />} />
 				<Route path="/contact" element={<Contact />} />
 
@@ -71,13 +67,6 @@ function App() {
 				<Route path="learn/article/new" element={<LearnArticleCreate />} />
 				<Route path="learn/video/new" element={<LearnVideoCreate />} />
 
-
-				{/* communities segment routes */}
-				<Route path="/communities" element={<Communities />} />			
-				<Route path="/community" element={<Community/>} />
-				<Route path="/communities/post/new" element={<CommunityPostForm />} />
-				<Route path="/communities/new" element={<CommunityNewForm />} />
-				<Route path="/community/:id" element={<CommunityDisplay />} />
 
 				{/* ai-bot route */}
 				<Route path="/ecobot-ai" element={<ChatBot />} />

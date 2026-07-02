@@ -3,7 +3,8 @@ import User from "../models/user.model.js";
 
 const createInitiative = async (req, res) => {
   try {
-    const { userId, title, description, imgUrl, category, location } = req.body;
+    const { title, description, imgUrl, category, location } = req.body;
+    const userId = req.userId; // Use userId from auth middleware
 
     const Initiativeinfo = {
       leader: userId,
@@ -16,7 +17,11 @@ const createInitiative = async (req, res) => {
     };
     const MakeInitiative = new Initiative(Initiativeinfo);
     const InitiativeSuccess = await MakeInitiative.save();
-    res.status(201).json({ message: "Initiative created successfully!" });
+    
+    // Populate the leader before sending response
+    const populatedInitiative = await Initiative.findById(InitiativeSuccess._id).populate("leader");
+    
+    res.status(201).json({ message: "Initiative created successfully!", initiative: populatedInitiative });
   } catch (err) {
     console.error("Error creating initiative:", err);
     res.status(500).json({ message: "Failed to create initiative." });
@@ -25,7 +30,7 @@ const createInitiative = async (req, res) => {
 
 const getInitiatives = async (req, res) => {
   try {
-    const initiatives = await Initiative.find({}).populate("leader");
+    const initiatives = await Initiative.find({}).populate("leader").populate("members");
     res.status(200).json({ List : initiatives });
   } catch (err) {
     console.error("Error fetching initiatives:", err);
@@ -35,12 +40,13 @@ const getInitiatives = async (req, res) => {
 
 const memberAction = async (req, res) => {
   try {
-    const { initiativeId, userId, action } = req.body;
+    const { initiativeId, action } = req.body;
+    const userId = req.userId; // Use userId from auth middleware
+    
     // Find the initiative and update its members based on the action
     const initiative = await Initiative.findById(initiativeId);
-    if(userId==initiative.leader){
-        res.status(200).json("You are the leader of this initiative.");
-        return;
+    if(userId.toString() === initiative.leader.toString()){
+        return res.status(200).json({ message: "You are the leader of this initiative." });
     }
     if (action === "join") {
       await Initiative.findByIdAndUpdate(

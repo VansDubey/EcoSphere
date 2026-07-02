@@ -91,22 +91,23 @@ const ShopContextProvider = (props) => {
 	};
 
 	const getUserCart = async (token) => {
-	    try {
-	        const response = await axios.post(
-	            backendUrl + "/api/cart/get",
-	            {},
-	            { headers: { token } }
-	        );
-	        if (response.data.success) {
-	            setCartItems(response.data.cartData);
-	        } else {
-	            toast.error(response.data.message);
-	        }
-	    } catch (error) {
-	        console.log(error);
-	        toast.error(error.message || "Something went wrong while fetching cart");
-	    }
-	}
+		try {
+			const response = await axios.post(
+				backendUrl + "/api/cart/get",
+				{},
+				{ headers: { token } }
+			);
+			if (response.data.success) {
+				setCartItems(response.data.cartData);
+			} else {
+				toast.error(response.data.message);
+			}
+		} catch (error) {
+			console.log(error);
+			toast.error(error.message || "Something went wrong while fetching cart");
+		}
+	};
+
 
 	const getCartAmount = () => {
 		let totalAmount = 0;
@@ -141,10 +142,15 @@ const ShopContextProvider = (props) => {
 
 	useEffect(() => {
 		if (!token && localStorage.getItem("token")) {
-			setToken(localStorage.getItem("token"));
-			getUserCart(localStorage.getItem("token"));
+			const storedToken = localStorage.getItem("token");
+			// Basic guard against malformed/stale tokens
+			if (typeof storedToken === "string" && storedToken.split(".").length === 3) {
+				setToken(storedToken);
+				getUserCart(storedToken);
+			}
 		}
 	}, []);
+
 
 	// const value = {
 	// 	products,

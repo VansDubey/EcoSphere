@@ -1,5 +1,4 @@
 export { default as Cart } from "./Cart.jsx";
-export { default as Communities } from "./Communities.jsx";
 export { default as Contact } from "./Contact.jsx";
 export { default as EcoShop } from "./EcoShop.jsx";
 export { default as Home } from "./Home.jsx";

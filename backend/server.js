@@ -8,17 +8,17 @@ import cartRouter from './routes/cart.route.js';
 import productRouter from './routes/product.route.js';
 import orderRouter from './routes/order.route.js';
 
-import communityRouter from './routes/community.route.js';
-
 import contactRoutes from './routes/contact.route.js';
 
 import initiativeRouter from './routes/initiative.route.js'
 
 import ecoRouter from './routes/ecoAI.route.js';
+import reportRouter from './routes/report.route.js';
 
 import learnRouter from './routes/learn.route.js';
 import articleModel from './models/article.model.js';
 import Initiative from './models/Initiative.model.js';
+
 
 //app config
 const app = express();
@@ -37,14 +37,15 @@ app.use('/api/product', productRouter)
 app.use('/api/order', orderRouter);
 app.use('/api/contact', contactRoutes)
 
-// community api endpoint
-app.use('/api/communities',communityRouter);
-
 // eco-ai api endpoint
 app.use("/api/ai", ecoRouter );
 
+// report api endpoint
+app.use('/api/report', reportRouter);
+
 // initiative api end point
 app.use('/api/initiative', initiativeRouter)
+
 
 // learn api endpoint
 app.use('/api/learn',learnRouter);

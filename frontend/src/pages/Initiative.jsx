@@ -70,7 +70,7 @@ const Initiatives = () => {
   const filteredInitiatives =
     selectedCategory === 'All'
       ? AllInitiatives
-      : AllInitiatives.filter((item) => item.category == selectedCategory);
+      : AllInitiatives.filter((item) => item.category === selectedCategory);
 
   return (
     <div className="eco-static-bg text-green-900 scroll-smooth">
@@ -128,16 +128,18 @@ const Initiatives = () => {
 
 
         {/* add new initiative card */}
-        <div className="grid sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="mb-8">
           <Link to="/initiatives/create-initiative"
-            className="bg-emerald-100 shadow-md rounded-lg overflow-hidden hover:shadow-xl hover:-translate-y-2 p-20 transition-all duration-200 ease-out text-green-900 text-center flex items-center justify-center" >
+            className="inline-block bg-emerald-100 shadow-md rounded-lg overflow-hidden hover:shadow-xl hover:-translate-y-2 p-6 transition-all duration-200 ease-out text-green-900 text-center" >
 
-            <svg xmlns="http://www.w3.org/2000/svg" width="200" height="200" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-square-plus-icon lucide-square-plus"><rect width="18" height="18" x="3" y="3" rx="2" /><path d="M8 12h8" /><path d="M12 8v8" />
+            <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-square-plus-icon lucide-square-plus"><rect width="18" height="18" x="3" y="3" rx="2" /><path d="M8 12h8" /><path d="M12 8v8" />
             </svg>
-
-
-            {/* displaying each intitiave after filteration */}
+            <p className="mt-2 font-semibold">Create New Initiative</p>
           </Link>
+        </div>
+
+        {/* displaying each intitiave after filteration */}
+        <div className="grid sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {filteredInitiatives.map((item, i) => (
             <div
               key={i}
@@ -158,7 +160,9 @@ const Initiatives = () => {
                 <Link to={`/initiatives/${item._id}`} state={item}>
                   <div className="space-y-3">
                     <div className="flex justify-between items-center">
-                      <span className="text-sm text-green-900">{item.leader.name.toUpperCase()}</span>
+                      <span className="text-sm text-green-900">
+                        {item.leader?.name?.toUpperCase() || "Unknown Leader"}
+                      </span>
                       <span className="text-sm text-green-900">
                         {new Date(item.createdAt).toLocaleDateString()}
                       </span>
@@ -219,11 +223,6 @@ const Initiatives = () => {
             </div>
 
           ))}
-
-
-        </div>
-        {/* add button */}
-        <div className="grid sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
 
         </div>
       </section>

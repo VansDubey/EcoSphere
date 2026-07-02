@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>EcoSphere Report</title>
+    <style>
+      body { font-family: Arial, Helvetica, sans-serif; margin: 40px; color: #0f172a; }
+      h1 { font-size: 28px; margin: 0 0 6px; }
+      .muted { color: #475569; }
+      .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 18px; }
+      .card { border: 1px solid #d1d5db; border-radius: 12px; padding: 14px; background: #ffffff; }
+      .pill { display: inline-block; padding: 6px 10px; border-radius: 999px; background: #ecfccb; border: 1px solid #a3e635; font-weight: 700; }
+      .row { margin: 6px 0; }
+      ul { padding-left: 18px; }
+      table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+      td, th { border-bottom: 1px solid #e5e7eb; padding: 8px; text-align: left; }
+      .section-title { margin-top: 22px; font-size: 18px; font-weight: 700; }
+      .actions { margin-top: 10px; display: grid; gap: 10px; }
+      .action { border: 1px solid #d1d5db; border-radius: 12px; padding: 12px; }
+      .checklist li { margin: 6px 0; }
+      .footer { margin-top: 28px; font-size: 12px; color: #6b7280; }
+      @media print { body { margin: 18px; } }
+    </style>
+  </head>
+  <body>
+    <h1>EcoSphere Sustainability Report</h1>
+    <div class="muted">Deterministic footprint +  Action plan</div>
+
+    <div class="grid">
+      <div class="card">
+        <div class="muted">Annual footprint</div>
+        <div style="font-size: 26px; font-weight: 800; margin-top: 6px;">
+          {{footprintKgPerYear}} kg CO2e/year
+        </div>
+        <div class="row muted">Benchmark: {{benchmarkKgPerYear}} kg CO2e/year</div>
+      </div>
+
+      <div class="card">
+        <div class="muted">Risk level</div>
+        <div style="margin-top: 6px;">
+          <span class="pill">{{riskLevel}}</span>
+        </div>
+        <div class="row muted" style="margin-top: 10px;">{{riskExplanation}}</div>
+      </div>
+    </div>
+
+    <div class="section-title">Emissions breakdown (annual)</div>
+    <table>
+      <thead>
+        <tr>
+          <th>Category</th>
+          <th>kg CO2e/year</th>
+        </tr>
+      </thead>
+      <tbody>
+        {{breakdownRows}}
+      </tbody>
+    </table>
+
+    <div class="section-title">Top actions</div>
+    <div class="actions">
+      {{topActions}}
+    </div>
+
+    <div class="section-title">Checklist</div>
+    <ul class="checklist">
+      {{checklistItems}}
+    </ul>
+
+    <div class="footer">{{disclaimer}}</div>
+  </body>
+</html>
+

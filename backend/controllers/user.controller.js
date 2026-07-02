@@ -134,4 +134,86 @@ const userDetails = async (req, res) => {
     }
 }
 
-export { loginUser, registerUser, adminLogin, userDetails };
+// Update user profile
+const updateUserProfile = async (req, res) => {
+    try {
+        const { name, email, phone, currentPassword, newPassword } = req.body;
+        const userId = req.user?.id;
+
+        if (!userId) {
+            return res.status(401).json({ success: false, message: 'Unauthorized' });
+        }
+
+        const user = await User.findById(userId);
+        if (!user) {
+            return res.status(404).json({ success: false, message: 'User not found' });
+        }
+
+        // If changing password, verify current password
+        if (newPassword) {
+            if (!currentPassword) {
+                return res.status(400).json({ success: false, message: 'Current password is required to set a new password' });
+            }
+            
+            const isMatch = await bcrypt.compare(currentPassword, user.password);
+            if (!isMatch) {
+                return res.status(400).json({ success: false, message: 'Current password is incorrect' });
+            }
+
+            if (newPassword.length < 5) {
+                return res.status(400).json({ success: false, message: 'New password must be at least 5 characters long' });
+            }
+
+            const salt = await bcrypt.genSalt(10);
+            user.password = await bcrypt.hash(newPassword, salt);
+        }
+
+        // Update other fields
+        if (name) user.name = name;
+        if (email) user.email = email;
+        if (phone) user.phone = phone;
+
+        await user.save();
+
+        const updatedUser = await User.findById(userId).select('-password');
+        res.status(200).json({ success: true, message: 'Profile updated successfully', user: updatedUser });
+    }
+    catch (error) {
+        console.log(error);
+        res.status(500).json({ success: false, message: error.message });
+    }
+}
+
+// Upload profile photo
+const uploadProfilePhoto = async (req, res) => {
+    try {
+        const userId = req.user?.id;
+        
+        if (!userId) {
+            return res.status(401).json({ success: false, message: 'Unauthorized' });
+        }
+
+        const { profilePhoto } = req.body;
+        
+        if (!profilePhoto) {
+            return res.status(400).json({ success: false, message: 'Profile photo is required' });
+        }
+
+        const user = await User.findById(userId);
+        if (!user) {
+            return res.status(404).json({ success: false, message: 'User not found' });
+        }
+
+        user.profilePhoto = profilePhoto;
+        await user.save();
+
+        const updatedUser = await User.findById(userId).select('-password');
+        res.status(200).json({ success: true, message: 'Profile photo updated successfully', user: updatedUser });
+    }
+    catch (error) {
+        console.log(error);
+        res.status(500).json({ success: false, message: error.message });
+    }
+}
+
+export { loginUser, registerUser, adminLogin, userDetails, updateUserProfile, uploadProfilePhoto };

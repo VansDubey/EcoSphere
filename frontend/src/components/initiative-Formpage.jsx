@@ -36,11 +36,40 @@ const CreateInitiative = () => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
+    
+    // Get token from localStorage
     const token = localStorage.getItem("token");
+    
+    if (!token) {
+      toast.error("Please login to create an initiative.");
+      navigate("/login");
+      return;
+    }
+
+    // Get user data from localStorage
+    const userDataStr = localStorage.getItem('user');
+    let userData = null;
+    
+    try {
+      userData = JSON.parse(userDataStr);
+    } catch (error) {
+      console.error("Error parsing user data:", error);
+    }
+    
+    if (!userData || !userData.id) {
+      toast.error("User data not found. Please login again.");
+      navigate("/login");
+      return;
+    }
+
+    // Send form data (userId will be taken from auth middleware)
+    const requestData = {
+      ...formData
+    };
 
     axios
-      .post(`${import.meta.env.VITE_BACKEND_URL}/api/initiative/create`, formData, {
-        headers: { token },
+      .post(`${import.meta.env.VITE_BACKEND_URL}/api/initiative/create`, requestData, {
+        headers: { token }
       })
       .then(() => {
         toast.success("Initiative created successfully!");
@@ -48,7 +77,7 @@ const CreateInitiative = () => {
       })
       .catch((error) => {
         console.error("Error creating initiative:", error);
-        toast.error("Failed to create initiative.");
+        toast.error(error.response?.data?.message || "Failed to create initiative.");
       });
   };
 
